@@ -1,0 +1,59 @@
+# coding=utf-8
+import MySQLdb as mysql
+import string
+import traceback
+
+class py_mysql():
+    def __init__(self):
+#        self.dbHost = setting["dbhost"]
+#        self.dbUser = setting["dbuser"]
+#        self.dbPass = setting["dbpass"]
+#        self.dbName = setting["dbname"]
+#        self.port = setting["port"]
+        self.dbHost = 'localhost'
+        self.dbUser = 'root'
+        self.dbPass = 'T.c1yC2d^4?]1bZD'
+        self.dbName = 'samsdb'
+        self.port = '3306'
+        self._conn()
+
+    def _conn(self):
+        try:
+            self.conn = mysql.Connection(
+                    self.dbHost,self.dbUser,self.dbPass,self.dbName,int(self.port),charset='utf8')
+            self.conn.autocommit(True)
+            self.conn.select_db(self.dbName)
+            self.cur = self.conn.cursor()
+        except:
+            print traceback.format_exc() 
+
+    def selectQuery(self,params):
+        par =  string.join (params['name'] , ',')
+        sql = "select "+par+" from " + params['tbl']+ " " +params['prefix']
+        self.params = params
+        try:
+            self.queryNum = self.cur.execute(sql)
+        except:
+            print sql,traceback.format_exc()
+
+    def query(self,sql):
+        try:
+            self.queryNum=self.cur.execute(sql)
+        except:
+            print traceback.format_exc()
+
+    def getSql(self):
+        fetch=self.cur.fetchall()
+        for inv in fetch:
+            yield dict(zip(self.params['name'], inv))
+
+    def selectQuery_sor(self,sql):
+        try:
+            self.cur.execute(sql)
+            return self.cur.fetchall()
+        except mysql.Error,e:
+            return False
+
+    def fn(self):
+        return self.cur.rowcount
+
